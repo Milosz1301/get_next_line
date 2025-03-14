@@ -1,0 +1,85 @@
+#include "get_next_line.h"
+
+void    new_line(char *buffer, char *line, char *rest)
+{
+        if (!line)
+                line = extract_line(buffer, line, rest);
+        else
+                ft_strjoin(line, extract_line(buffer, line, rest));
+}
+
+void    no_new_line(char *buffer, char *line, char *rest)
+{
+        if (!line)
+        {
+                if (rest)
+                {
+                        ft_strjoin(line, rest);
+                        ft_strjoin(line, buffer);
+                        free(rest);
+                }
+                ft_strjoin(line, buffer);
+        }
+        else
+                ft_strjoin(line, buffer);
+}
+
+char    *extract_line(char *buffer, char *line, char *rest)
+{
+        char    *nl_add;
+        size_t  i;
+        size_t  j;
+
+        nl_add = ft_strchr(buffer, '\n');
+        line = (char *)malloc(sizeof(char) * (nl_add - buffer + 1));
+        if (!line)
+                return (NULL);
+        i = -1;
+        while (buffer[++i] != '\n')
+                line[i] = buffer[i];
+        line[++i] = '\n';
+        line[++i] = '\0';
+        j = 0;
+        while (buffer[i + j])
+                j++;
+        rest = ft_substr(buffer, i, j);
+        return (line);
+}
+
+void    loop(int fd, char *buffer, char *line, char *rest)
+{
+        size_t  r_bytes;
+
+        buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+        r_bytes = 1;
+        while (r_bytes > 0)
+        {
+                r_bytes = read(fd, buffer, BUFFER_SIZE);
+                buffer[r_bytes + 1] = '\0';
+                if (ft_strchr(buffer, '\n'))
+                {
+                        new_line(buffer, line, rest);
+                        return ;
+                }
+                else
+                        no_new_line(buffer, line, rest);
+        }
+        free(buffer);
+}
+
+char    *get_next_line(int fd)
+{
+        static char     *buffer;
+        static char     *rest;
+        static char     *line;
+
+        if (fd < 0 || BUFFER_SIZE <= 0)
+                return (NULL);
+        if (line)
+                free(line);
+        loop(fd, buffer, line, rest);
+        return (line);
+}
+                                                                                                     94,1          Bot
+
+
