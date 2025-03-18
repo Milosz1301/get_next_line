@@ -28,3 +28,23 @@ char    *get_next_line(int fd)
                 line = ft_strjoin(hold, line);
         return (line);
 }
+char    *get_the_line(int fd)
+{
+        char    *buffer;
+        char    *line;
+        size_t  r_bytes;
+
+        line = NULL;
+        buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+        r_bytes = 1;
+        while (r_bytes > 0)
+        {
+                r_bytes = read(fd, buffer, BUFFER_SIZE);
+                buffer[r_bytes] = '\0';
+                line = ft_strjoin(line, buffer);
+                if (ft_strchr(line, '\n'))
+                        break ;
+        }
+        free(buffer);
+        return (line);
+}
